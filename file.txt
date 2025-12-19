@@ -1,0 +1,7 @@
+Full Width Layout (no gaps)
+├── Header (full width)
+├── Banner Scroller (full width)
+├── Product Grid (full width, 2 columns)
+│   ├── Card 1 (50% width)
+│   └── Card 2 (50% width)
+└── Footer (full width)
