@@ -101,10 +101,6 @@ export const storage = {
     return db.getAdminSettings();
   },
 
-  saveAdminSettings: async (settings: AdminSettings): Promise<void> => {
-    await db.updateAdminSettings(settings);
-  },
-
   updateAdminSettings: async (updates: Partial<AdminSettings>): Promise<boolean> => {
     return db.updateAdminSettings(updates);
   },

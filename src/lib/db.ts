@@ -253,14 +253,21 @@ export const db = {
       const { data, error } = await supabase
         .from('admin_settings')
         .select('*')
+        .limit(1)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
 
       if (!data) {
-        const defaultSettings: AdminSettings = { secretCode: '123456', sessionActive: false, sessionExpiry: 0 };
+        const defaultSettings = { secretCode: '123456' };
         await db.initializeAdminSettings(defaultSettings);
-        return defaultSettings;
+        return {
+          secretCode: '123456',
+          sessionActive: false,
+          sessionExpiry: 0
+        };
       }
 
       return {
@@ -292,23 +299,36 @@ export const db = {
 
   async updateAdminSettings(updates: Partial<AdminSettings>): Promise<boolean> {
     try {
-      const dbUpdates: any = { updated_at: new Date().toISOString() };
-      if (updates.secretCode !== undefined) {
-        dbUpdates.secretcode = updates.secretCode;
+      if (updates.secretCode === undefined) {
+        return false;
       }
 
-      const { data: existing } = await supabase
+      const dbUpdates: any = {
+        secretcode: updates.secretCode,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data: existing, error: selectError } = await supabase
         .from('admin_settings')
         .select('id')
+        .limit(1)
         .maybeSingle();
 
+      if (selectError) throw selectError;
+
       if (existing) {
-        const { error } = await supabase
+        const { error: updateError } = await supabase
           .from('admin_settings')
           .update(dbUpdates)
           .eq('id', existing.id);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('admin_settings')
+          .insert([{ secretcode: updates.secretCode }]);
+
+        if (insertError) throw insertError;
       }
 
       return true;

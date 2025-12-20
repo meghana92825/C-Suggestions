@@ -387,11 +387,26 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
     }
   };
 
-  const handleUpdateSecretCode = async (newCode: string) => {
+  const [tempSecretCode, setTempSecretCode] = useState('');
+
+  useEffect(() => {
+    setTempSecretCode(adminSettings.secretCode);
+  }, [adminSettings.secretCode]);
+
+  const handleUpdateSecretCode = async () => {
+    if (!tempSecretCode || tempSecretCode.length < 6) {
+      alert('Secret code must be at least 6 characters');
+      return;
+    }
+
     try {
-      const updatedSettings = { ...adminSettings, secretCode: newCode };
-      await storage.updateAdminSettings(updatedSettings);
-      setAdminSettings(updatedSettings);
+      const success = await storage.updateAdminSettings({ secretCode: tempSecretCode });
+      if (success) {
+        setAdminSettings({ ...adminSettings, secretCode: tempSecretCode });
+        alert('Secret code updated successfully!');
+      } else {
+        alert('Failed to update secret code');
+      }
     } catch (error) {
       console.error('Failed to update secret code:', error);
       alert('Failed to update secret code');
@@ -879,14 +894,23 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Secret Code
                   </label>
-                  <input
-                    type="text"
-                    value={adminSettings.secretCode}
-                    onChange={(e) => handleUpdateSecretCode(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter 6-digit secret code"
-                  />
-                  <p className="mt-2 text-sm text-gray-500">Change this to secure admin access</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={tempSecretCode}
+                      onChange={(e) => setTempSecretCode(e.target.value)}
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Enter secret code (min 6 characters)"
+                    />
+                    <button
+                      onClick={handleUpdateSecretCode}
+                      className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save
+                    </button>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">Change this to secure admin access. Must be at least 6 characters.</p>
                 </div>
                 
                 <div className="border-t border-gray-200 pt-6">

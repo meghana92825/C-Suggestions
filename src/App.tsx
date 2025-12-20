@@ -32,19 +32,18 @@ function App() {
   };
 
   const handleSecretCodeSubmit = async (code: string) => {
-    const settings = await storage.getAdminSettings();
-    if (code === settings.secretCode) {
-      const updatedSettings = {
-        ...settings,
-        sessionActive: true,
-        sessionExpiry: Date.now() + (24 * 60 * 60 * 1000)
-      };
-      await storage.saveAdminSettings(updatedSettings);
+    try {
+      const settings = await storage.getAdminSettings();
 
-      setShowSecretModal(false);
-      setShowAdminModal(true);
-    } else {
-      alert('Invalid secret code!');
+      if (code === settings.secretCode) {
+        setShowSecretModal(false);
+        setShowAdminModal(true);
+      } else {
+        alert('Invalid secret code! Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to verify secret code:', error);
+      alert('An error occurred. Please try again.');
     }
   };
 
