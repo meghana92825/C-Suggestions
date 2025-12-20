@@ -54,7 +54,7 @@ export function Header({ onSearch, onCategoryFilter, onSubcategoryFilter, onLogo
             onClick={onLogoClick}
           >
             <div className="w-12 h-12 rounded-lg flex items-center justify-center">
-              <img src="https://img.sanishtech.com/u/be67f59da5f9d04501a3933aa73be32a.png"></img>
+              <img src="CSlogo.png"></img>
             </div>
             <span className="ml-2 text-xl font-bold text-gray-900">C-Suggestions</span>
           </div>
